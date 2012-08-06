@@ -1,0 +1,14 @@
+div.semantic-widget {
+    
+}
+
+div.semantic-widget div.semantic-query {
+    margin: auto auto;
+    vertical-align: middle;
+    text-align: center;
+}
+
+div.semantic-widget input#semantic-query {
+    width: 200px;
+}
+
