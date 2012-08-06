@@ -4,7 +4,8 @@ SemanticWidget = {
 
         this.api = "providers";
         this.api_item = "provider";
-        this.api_endpoint = "https://www.odesk.com/api/profiles/v1/search/" + this.api + ".json?callback=?&";
+        this.api_endpoint = "https://www.odesk.com/api/profiles/v1/search/" + 
+            this.api + ".json?callback=?&";
 
         // Search box changed
         $("#semantic-query").keyup(function(event){
@@ -38,9 +39,11 @@ SemanticWidget = {
 
         $(".semantic-results").html("<img src='http://i245.photobucket.com/albums/gg58/pipoltek/blogs/a-load.gif' />");
 
-        jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;200", function(data) {
-            that.api_response(data);
-        });
+        jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;20",
+            function(data) {
+                that.api_response(data);
+            }
+        );
     },
 
     // -- GRAPH BUILDING -----------------------------------------------------
@@ -67,7 +70,8 @@ SemanticWidget = {
     },
 
     build_graph: function() {
-        var that = this;
+        var that = this,
+            results = $(".semantic-results");
         this.graph = {};
 
         $.each(this.resultset, function(resultset_item_index, item) {
@@ -80,6 +84,12 @@ SemanticWidget = {
                 function(i, word) {that.index_term(word, resultset_item_index)});
         });
 
-        console.log(this.graph);
+        //console.log(this.graph);
+        
+        $.each(this.graph, function(k, v) {
+            if (v.usage > 3)
+                results.append("<div class='semantic-bubble-wrapper'><div class='semantic-bubble" + Math.min(v.usage, 10) + "'>&nbsp;</div></div>");
+                //results.append("<div class='semantic-bubble" + Math.min(v.usage, 10) + "'>" + k + "<sup>" + v.usage + "</sup></div>");
+        });
     }
 }
