@@ -7,6 +7,15 @@ SemanticWidget = {
         this.api_endpoint = "https://www.odesk.com/api/profiles/v1/search/" + 
             this.api + ".json?callback=?&";
 
+        this.cloud = new SWFObject("tagcloud.swf", "tagcloud", window.innerWidth, window.innerHeight, "9", "#336699");
+        this.cloud.addParam("wmode", "transparent");
+        this.cloud.addVariable("mode", "tags");
+        this.cloud.addVariable("distr", "true");
+        this.cloud.addVariable("tcolor", "0x3b5998");
+        this.cloud.addVariable("tcolor2", "0x3b5998");
+        this.cloud.addVariable("hicolor", "0x333333");
+        this.cloud.addVariable("tspeed", "100");
+
         // Search box changed
         $("#semantic-query").keyup(function(event){
             if(event.keyCode == 13){
@@ -70,8 +79,7 @@ SemanticWidget = {
     },
 
     build_graph: function() {
-        var that = this,
-            results = $(".semantic-results");
+        var that = this;
         this.graph = {};
 
         $.each(this.resultset, function(resultset_item_index, item) {
@@ -85,11 +93,15 @@ SemanticWidget = {
         });
 
         //console.log(this.graph);
-        
+        var tags = "";
         $.each(this.graph, function(k, v) {
-            if (v.usage > 3)
-                results.append("<div class='semantic-bubble-wrapper'><div class='semantic-bubble" + Math.min(v.usage, 10) + "'>&nbsp;</div></div>");
+            if ((v.usage > 2) && k !== that.q)
+                tags += "<a href='http://" + k + "/' target='_blank' style='" + v.usage + "'>" + k + "</a>";
+                //results.append("<div class='semantic-bubble-wrapper'><div class='semantic-bubble" + Math.min(v.usage, 10) + "'>&nbsp;</div></div>");
                 //results.append("<div class='semantic-bubble" + Math.min(v.usage, 10) + "'>" + k + "<sup>" + v.usage + "</sup></div>");
         });
+        
+        this.cloud.addVariable("tagcloud", "<tags>" + tags + "</tags>");
+        this.cloud.write("semantic-results");
     }
 }
