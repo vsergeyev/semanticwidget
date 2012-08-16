@@ -11,6 +11,8 @@ SemanticWidget = {
                 api_item: "provider",
                 min_usage: 10,
                 max_results: 100,
+                max_font_size: 32,
+                min_font_size: 6,
                 q: "",
                 page: 0,
                 stop_words: ["Using", "More", "Most", "Very", "Also", "Than",
@@ -57,6 +59,8 @@ SemanticWidget = {
         this.dom.search_button.click(function(event){
             that.submit();
         });
+
+        $(".semantic-popup").draggable({stack: ".semantic-popup"});
 
         that.submit();
     },
@@ -140,6 +144,15 @@ SemanticWidget = {
             // Description
             $.each(that.prepare_string(item.dev_blurb),
                 function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
+
+            // Skills
+            //console.log(item.skills.skill);
+            if ($.isArray(item.skills.skill))
+                $.each(item.skills.skill,
+                    function(i, skill) {that.index_term(skill.skl_name.capitalize(), resultset_item_index)})
+            else
+                if (typeof item.skills.skill !== 'undefined')
+                    that.index_term(item.skills.skill.skl_name.capitalize(), resultset_item_index);
         });
     },
 
@@ -298,7 +311,7 @@ SemanticWidget = {
                 if (node._depth < 1)
                     style.fontSize = "2em"
                 else {
-                    var f = Math.max(Math.min(node.data.usage*3, 20), 8);
+                    var f = Math.max(Math.min(node.data.usage, that.max_font_size), that.min_font_size);
                     var c = 4 * Math.round(50 - Math.min(node.data.usage, 40));
                     style.fontSize = f+"px";
                     style.color = "rgb(" + c + "," + c + "," + c + ")";
