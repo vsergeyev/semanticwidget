@@ -10,13 +10,33 @@
         <script language="javascript" type="text/javascript" src="jit.js"></script>
         <script type="text/javascript" src="widget.js"></script>
 
-        <link rel="stylesheet" href="http://thejit.org/static/v20/Jit/Examples/css/RGraph.css" />
         <link rel="stylesheet" href="widget.css" />
         
-        <script id="wordTemplate" type="text/x-jquery-tmpl">
-            <div>
-                ${k}, ${v.usage}
-            </div>
+        <script id="providerTemplate" type="text/x-jquery-tmpl">
+            <li class="odesk-contractor">
+                <a class="odesk-contractor-image" {{if dev_portrait_50}}style="background-image:url(${dev_portrait_50})"{{/if}}
+                    href="https://www.odesk.com/users/${ciphertext}" target=_blank>
+                    <span><span>&nbsp;</span></span></a>
+                <div class="odesk-contractor-info">
+                    <div class="odesk-info-row">
+                        <a class="odesk-contractor-name" href="https://www.odesk.com/users/${ciphertext}" target=_blank>
+                            ${contact_name}</a>
+                    </div>
+
+                    <div class="odesk-contractor-description">
+                        ${dev_profile_title}
+                    </div>
+
+                    <div class="odesk-contractor-reviews">
+                        ${dev_tot_feedback} Reviews
+                        |
+                        <span class="odesk-stars${adj_score[0]}"></span>
+                        |
+                        $${dev_bill_rate}/hr
+                        </div>
+                    </div>
+                </div>
+            </li>
         </script>
         
         <script type="text/javascript">
@@ -40,11 +60,11 @@
                 </div>
                 <div class="semantic-param">
                     <span>Minimal word occurrence</span>
-                    <input id="semantic-min-usage" class="semantic-input-int" value="9" />
+                    <input id="semantic-min-usage" class="semantic-input-int" value="10" />
                 </div>
                 <div class="semantic-param">
                     <span>Maximum results to analyze</span>
-                    <input id="semantic-max-results" class="semantic-input-int" value="100" />
+                    <input id="semantic-max-results" class="semantic-input-int" value="100" /> max 200
                 </div>
                 <div class="semantic-param">
                     <button class="semantic-input-button" type="button">Search</button>

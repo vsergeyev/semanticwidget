@@ -9,7 +9,7 @@ SemanticWidget = {
                 id: "semantic-widget",
                 api: "providers",
                 api_item: "provider",
-                min_usage: 9,
+                min_usage: 10,
                 max_results: 100,
                 q: "",
                 page: 0,
@@ -17,8 +17,9 @@ SemanticWidget = {
                     "Me", "You", "Your", "Who", "Up", "Last", "Over", "Based",
                     "And", "Or", "Not", "Both", "It", "Its", "Now", "Since",
                     "Past", "This", "That", "But", "Be", "Been", "Would",
-                    "Was", "Which", "Will", "By", "Am", "What", "While",
-                    "Some", "Part", "About", "So", 
+                    "Was", "Which", "Will", "By", "Am", "What", "While", "To",
+                    "Some", "Part", "About", "So", "An", "Etc", "As", "From",
+                    "At", "Do",
                     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
             };
 
@@ -150,7 +151,7 @@ SemanticWidget = {
         this.index_terms();
 
         $.each(that.graph_array, function(k, v) {
-            if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
+            if ((v.usage >= that.min_usage) && k !== that.q.capitalize()) {
                 var new_node = {
                     id: k,
                     name: k,
@@ -188,7 +189,7 @@ SemanticWidget = {
         this.index_terms();
 
         $.each(this.graph_array, function(k, v) {
-            if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
+            if ((v.usage >= that.min_usage) && k !== that.q.capitalize()) {
                 that.graph.children.push({
                     id: k,
                     name: k,
@@ -244,15 +245,36 @@ SemanticWidget = {
                 domElement.innerHTML = node.name;
                 if (node._depth >= 1)
                     domElement.innerHTML = node.name + "<sup>" + node.data.usage + "</sup>";
-                domElement.onclick = function(){
+                domElement.onclick = function() {
+                    if (that.dom.query.val().search(node.name) < 0) {
+                        that.dom.query.val(that.dom.query.val() + " " + node.name);
+                        that.append_graph(node);
+                    }
                     that.rgraph.onClick(node.id, {
                         onComplete: function() {
-                            if (that.dom.query.val().search(node.name) < 0) {
-                                that.dom.query.val(that.dom.query.val() + " " + node.name);
-                                that.append_graph(node);
-                            }
                         }
                     });
+                };
+                domElement.onmouseover = function() {
+                    var $this = $(this);
+                    this.timer = setTimeout(function() {
+                        if ($("#popup-" + node.name).length) return;
+    
+                        if (that.graph_array[node.name]) {
+                            var popup = $("<div class='semantic-popup' id='popup-" + node.name 
+                                + "'><div onclick='$(\"#popup-" + node.name + "\").remove();' class='close'>Close</div><div class='title'>"
+                                + that.q + " > " + node.name + "</div></div>");
+                            $.each(that.graph_array[node.name].items, function(v) {
+                                $("#providerTemplate").tmpl(that.resultset[v]).appendTo(popup);
+                            });
+                            $this.after(popup.hide().fadeIn(500));
+                            popup.offset($this.offset());
+                            //$this.attr("popup", true);
+                        }
+                    }, 500);
+                };
+                domElement.onmouseout = function() {
+                    clearTimeout(this.timer);
                 };
             },
             //Change some label dom properties.

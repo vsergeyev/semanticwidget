@@ -14,7 +14,7 @@ div.semantic-widget div.semantic-query {
     float: left;
     background: -webkit-gradient(linear, left top, right bottom, from(#9fb3cc), to(#5b80ab), color-stop(0.5, #6b8bb2), color-stop(0.51, #597eaa));
     -webkit-border-radius: 5px;
-    z-index: 2000;
+    z-index: 999;
 }
 
 div.semantic-widget input#semantic-query {
@@ -94,4 +94,114 @@ div.semantic-progress {
     padding: 10px;
     color: #fff;
     text-shadow: 0 -2px 0 rgba(0,0,0, 0.6);
+}
+
+/* ------------------------------------------------------------------------ */
+
+.semantic-popup {
+    position: absolute;
+    text-align: left;
+    background: -webkit-gradient(linear, left top, right bottom, from(#9fb3cc), to(#5b80ab), color-stop(0.5, #6b8bb2), color-stop(0.51, #597eaa));
+    width: 220px;
+    border: 1px solid #D8D9DA;
+    -webkit-border-radius: 5px;
+    padding: 10px;
+    color: #000;
+    z-index: 998;
+    overflow: hidden;
+}
+
+.semantic-popup .title {
+    font-weight: bold;
+    display: block;
+    padding-bottom: 10px;
+}
+
+.semantic-popup .close {
+    font-weight: bold;
+    color: #ff6a00;
+    display: inline;
+    float: right;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.odesk-contractor {
+    list-style: none;
+    min-height: 50px;
+    border-top: 1px solid rgba(0,0,0, 0.2);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255, 0.25);
+    display: block;
+}
+
+.odesk-contractor-image {
+    width: 40px;
+    height: 40px;
+    margin-top: 5px;
+    background-position: -5px -5px;
+    background-image: url(http://widget.dev.odeskps.com/static/images/no-image-default.png);
+    background-repeat: no-repeat;
+    float: left;
+    display: block;
+}
+
+.odesk-contractor a {
+    text-decoration: none;
+}
+
+.odesk-info-row {
+    overflow: hidden;
+    padding-left: 5px;
+}
+
+.odesk-info-row a {
+    font-weight: bold;
+    margin: 0;
+    color: #0069D6;
+    text-decoration: none;
+    font-size: .9em;
+    line-height: 1em;
+}
+
+.odesk-contractor-description {
+    padding-left: 45px !important;
+    display: block;
+    font-size: .8em;
+    line-height: 1em;
+}
+
+.odesk-contractor-reviews {
+    font-size: .7em !important;
+    padding-left: 45px !important;
+}
+
+.odesk-stars1, .odesk-stars2, .odesk-stars3, .odesk-stars4, .odesk-stars5 {
+    display: inline-block;
+    width: 38px;
+    background-image: url(http://widget.dev.odeskps.com/static/images/ebay/stars-sidebar.png);
+    background-position: -3px -11px;
+    position: relative;
+    top: 4px;
+    height: 15px;
+    margin-right: .1em;
+}
+
+.odesk-stars1 {
+    background-position: -3px -64px;
+}
+
+.odesk-stars2 {
+    background-position: -3px -116px;
+}
+
+.odesk-stars3 {
+    background-position: -3px -169px;
+}
+
+.odesk-stars4 {
+    background-position: -3px -222px;
+}
+
+.odesk-stars5 {
+    background-position: -3px -274px;
 }
