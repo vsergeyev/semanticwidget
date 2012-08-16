@@ -61,6 +61,12 @@ div.semantic-progress {
     padding-bottom: 10px;
 }
 
+.semantic-param label {
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0, 0.6);
+    line-height: 2.0em;
+}
+
 .semantic-param input {
     padding: 5px;
     font-size: 16px;

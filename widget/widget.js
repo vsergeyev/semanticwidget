@@ -13,8 +13,13 @@ SemanticWidget = {
                 max_results: 100,
                 max_font_size: 32,
                 min_font_size: 6,
+                // analize-title: true,
+                // analize-blurb: true,
+                // analize-skills: true,
+                // analize-country: true,
                 q: "",
                 page: 0,
+                total_results: 0,
                 stop_words: ["Using", "More", "Most", "Very", "Also", "Than",
                     "Me", "You", "Your", "Who", "Up", "Last", "Over", "Based",
                     "And", "Or", "Not", "Both", "It", "Its", "Now", "Since",
@@ -42,7 +47,11 @@ SemanticWidget = {
             progress: $(".semantic-progress"),
             search_button: $(".semantic-input-button"),
             min_usage: $("#semantic-min-usage"),
-            max_results: $("#semantic-max-results")
+            max_results: $("#semantic-max-results"),
+            analize_title: $("#semantic-analize-title"),
+            analize_blurb: $("#semantic-analize-blurb"),
+            analize_skills: $("#semantic-analize-skills"),
+            analize_country: $("#semantic-analize-country")
         }
 
         // Search box initial if param "q"
@@ -138,21 +147,29 @@ SemanticWidget = {
         var that = this;
         $.each(this.resultset, function(resultset_item_index, item) {
             // Title
-            $.each(that.prepare_string(item.dev_profile_title),
-                function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
+            if (that.dom.analize_title.is(":checked"))
+                $.each(that.prepare_string(item.dev_profile_title),
+                    function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
 
             // Description
-            $.each(that.prepare_string(item.dev_blurb),
-                function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
+            if (that.dom.analize_blurb.is(":checked"))
+                $.each(that.prepare_string(item.dev_blurb),
+                    function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
 
             // Skills
-            //console.log(item.skills.skill);
-            if ($.isArray(item.skills.skill))
-                $.each(item.skills.skill,
-                    function(i, skill) {that.index_term(skill.skl_name.capitalize(), resultset_item_index)})
-            else
-                if (typeof item.skills.skill !== 'undefined')
-                    that.index_term(item.skills.skill.skl_name.capitalize(), resultset_item_index);
+            if (that.dom.analize_skills.is(":checked"))
+                //console.log(item.skills.skill);
+                if ($.isArray(item.skills.skill))
+                    $.each(item.skills.skill,
+                        function(i, skill) {that.index_term(skill.skl_name.capitalize(), resultset_item_index)})
+                else
+                    if (typeof item.skills.skill !== 'undefined')
+                        that.index_term(item.skills.skill.skl_name.capitalize(), resultset_item_index);
+
+            // Country
+            if (that.dom.analize_country.is(":checked"))
+                if (typeof item.dev_country === 'string')
+                    that.index_term(item.dev_country.capitalize(), resultset_item_index);
         });
     },
 
@@ -256,8 +273,11 @@ SemanticWidget = {
             //This method is called once, on label creation.
             onCreateLabel: function(domElement, node){
                 domElement.innerHTML = node.name;
-                if (node._depth >= 1)
+                if (node._depth < 1) // root item
+                    domElement.innerHTML = node.name + "<sup>" + that.total_results + "</sup>"
+                else
                     domElement.innerHTML = node.name + "<sup>" + node.data.usage + "</sup>";
+
                 domElement.onclick = function() {
                     if (that.dom.query.val().search(node.name) < 0) {
                         that.dom.query.val(that.dom.query.val() + " " + node.name);
