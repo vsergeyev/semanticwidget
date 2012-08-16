@@ -218,7 +218,7 @@ SemanticWidget = {
             //zooming by scrolling and panning.
             Navigation: {
               enable: true,
-              panning: true,
+              panning: "avoid nodes",
               zooming: 50
             },
             //Set Node and Edge styles.
@@ -259,19 +259,30 @@ SemanticWidget = {
                     var $this = $(this);
                     this.timer = setTimeout(function() {
                         if ($("#popup-" + node.name).length) return;
-    
+
                         if (that.graph_array[node.name]) {
-                            var popup = $("<div class='semantic-popup' id='popup-" + node.name 
+                            var popup = $("<div class='semantic-popup' id='popup-" + node.name
                                 + "'><div onclick='$(\"#popup-" + node.name + "\").remove();' class='close'>Close</div><div class='title'>"
                                 + that.q + " > " + node.name + "</div></div>");
-                            $.each(that.graph_array[node.name].items, function(v) {
+
+                            $.each(that.graph_array[node.name].items, function(i, v) {
                                 $("#providerTemplate").tmpl(that.resultset[v]).appendTo(popup);
                             });
+
                             $this.after(popup.hide().fadeIn(500));
                             popup.offset($this.offset());
-                            //$this.attr("popup", true);
+
+                            popup.draggable({
+                                stack: ".semantic-popup",
+                                // start: function(event, ui) {
+                                    // that.rgraph.config.Navigation.panning = false;
+                                // },
+                                // stop: function(event, ui) {
+                                    // that.rgraph.config.Navigation.panning = "avoid nodes";
+                                // }
+                            });
                         }
-                    }, 500);
+                    }, 1000);
                 };
                 domElement.onmouseout = function() {
                     clearTimeout(this.timer);
