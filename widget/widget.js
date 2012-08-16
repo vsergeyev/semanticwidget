@@ -6,29 +6,44 @@ SemanticWidget = {
     init: function(params) {
         var that = this;
 
-        this.perpage = 200;
-        that.min_usage = 9;
+        this.max_results = 100;
+        this.min_usage = 9;
         this.api = "providers";
         this.api_item = "provider";
         this.api_endpoint = "https://www.odesk.com/api/profiles/v1/search/" +
             this.api + ".json?callback=?&";
 
-        this.dom = {}
-        this.dom.results = $(".semantic-results");
-        this.dom.query = $("#semantic-query");
-        this.dom.progress = $(".semantic-progress");
+        this.dom = {
+            results: $(".semantic-results"),
+            query: $("#semantic-query"),
+            progress: $(".semantic-progress"),
+            button: $(".semantic-input-button"),
+            
+        }
 
         // Search box changed
         this.dom.query.keyup(function(event){
             if(event.keyCode == 13){
-                that.dom.results.html("");
-                that.q = $("#semantic-query").val();
-                that.api_query();
+                that.submit();
             }
         });
+        // Search button
+        this.dom.button.click(function(event){
+            that.submit();
+        });
+
+        that.submit();
     },
 
     // -- JSON REQUEST / RESPONSE --------------------------------------------
+
+    submit: function() {
+        this.dom.results.html("");
+        this.q = this.dom.query.val();
+        this.max_results = $("#semantic-max-results").val();
+        this.min_usage = $("#semantic-min-usage").val();
+        this.api_query();
+    },
 
     show_spinner: function() {
         this.dom.progress.html("<img src='http://i245.photobucket.com/albums/gg58/pipoltek/blogs/a-load.gif' height=16 />");
@@ -59,7 +74,7 @@ SemanticWidget = {
 
         this.show_spinner();
 
-        jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;" + this.perpage,
+        jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;" + this.max_results,
             function(data) {
                 that.api_response(data);
             }
@@ -95,7 +110,7 @@ SemanticWidget = {
 
         this.show_spinner();
 
-        jQuery.getJSON(this.api_endpoint + "q=" + node.name + "&page=0;20",
+        jQuery.getJSON(this.api_endpoint + "q=" + node.name + "&page=0;" + that.max_results,
             function(data) {
                 that.hide_spinner();
 
@@ -110,7 +125,7 @@ SemanticWidget = {
                 });
 
                 $.each(that.graph_array, function(k, v) {
-                    if ((v.usage > 2) && k !== that.q.capitalize()) {
+                    if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
                         var new_node = {
                             id: k,
                             name: k,

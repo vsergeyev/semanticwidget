@@ -30,8 +30,25 @@
     <body>
         <div class="semantic-widget" id="semantic-widget">
             <div class="semantic-query">
-                <input id="semantic-query" placeholder="Search with keyword..." />
-                <div class="semantic-progress"></div>
+                <div class="semantic-title">
+                    oDesk semantic widget
+                </div>
+                <div class="semantic-param">
+                    <input id="semantic-query" placeholder="Search with keyword..." />
+                    <div class="semantic-progress"></div>
+                </div>
+                <div class="semantic-param">
+                    <span>Minimal word occurrence</span>
+                    <input id="semantic-min-usage" class="semantic-input-int" value="9" />
+                </div>
+                <div class="semantic-param">
+                    <span>Maximum results to analyze</span>
+                    <input id="semantic-max-results" class="semantic-input-int" value="100" />
+                </div>
+                <div class="semantic-param">
+                    <button class="semantic-input-button" type="button">Search</button>
+                </div>
+                <div class="semantic-footer">See all results on oDesk</div>
             </div>
             <div class="semantic-results" id="semantic-results"></div>
             
