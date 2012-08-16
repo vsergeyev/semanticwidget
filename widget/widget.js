@@ -6,6 +6,8 @@ SemanticWidget = {
     init: function(params) {
         var that = this;
 
+        this.perpage = 200;
+        that.min_usage = 9;
         this.api = "providers";
         this.api_item = "provider";
         this.api_endpoint = "https://www.odesk.com/api/profiles/v1/search/" +
@@ -57,7 +59,7 @@ SemanticWidget = {
 
         this.show_spinner();
 
-        jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;20",
+        jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;" + this.perpage,
             function(data) {
                 that.api_response(data);
             }
@@ -147,7 +149,7 @@ SemanticWidget = {
         });
 
         $.each(this.graph_array, function(k, v) {
-            if ((v.usage > 2) && k !== that.q.capitalize()) {
+            if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
                 that.graph.children.push({
                     id: k,
                     name: k,
