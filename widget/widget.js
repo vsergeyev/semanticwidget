@@ -4,22 +4,47 @@ String.prototype.capitalize = function() {
 
 SemanticWidget = {
     init: function(params) {
-        var that = this;
+        var that = this,
+            defaults = {
+                id: "semantic-widget",
+                api: "providers",
+                api_item: "provider",
+                min_usage: 9,
+                max_results: 100,
+                q: "",
+                page: 0,
+                stop_words: ["Using", "More", "Most", "Very", "Also", "Than",
+                    "Me", "You", "Your", "Who", "Up", "Last", "Over", "Based",
+                    "And", "Or", "Not", "Both", "It", "Its", "Now", "Since",
+                    "Past", "This", "That", "But", "Be", "Been", "Would",
+                    "Was", "Which", "Will", "By", "Am", "What", "While",
+                    "Some", "Part", "About", "So", 
+                    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+            };
 
-        this.max_results = 100;
-        this.min_usage = 9;
-        this.api = "providers";
-        this.api_item = "provider";
+        // Params
+        for (var key in defaults)
+            if (params.hasOwnProperty(key))
+                this[key] = params[key];
+            else
+                this[key] = defaults[key];
+
         this.api_endpoint = "https://www.odesk.com/api/profiles/v1/search/" +
             this.api + ".json?callback=?&";
 
+        // DOM
         this.dom = {
             results: $(".semantic-results"),
             query: $("#semantic-query"),
             progress: $(".semantic-progress"),
-            button: $(".semantic-input-button"),
-            
+            search_button: $(".semantic-input-button"),
+            min_usage: $("#semantic-min-usage"),
+            max_results: $("#semantic-max-results")
         }
+
+        // Search box initial if param "q"
+        if (this.q !== "")
+            this.dom.query.val(this.q);
 
         // Search box changed
         this.dom.query.keyup(function(event){
@@ -28,7 +53,7 @@ SemanticWidget = {
             }
         });
         // Search button
-        this.dom.button.click(function(event){
+        this.dom.search_button.click(function(event){
             that.submit();
         });
 
@@ -40,9 +65,9 @@ SemanticWidget = {
     submit: function() {
         this.dom.results.html("");
         this.q = this.dom.query.val();
-        this.max_results = $("#semantic-max-results").val();
-        this.min_usage = $("#semantic-min-usage").val();
-        this.api_query();
+        this.min_usage = this.dom.min_usage.val();
+        this.max_results = this.dom.max_results.val();
+        this.api_query("api_response");
     },
 
     show_spinner: function() {
@@ -54,9 +79,6 @@ SemanticWidget = {
     },
 
     api_response: function(data) {
-        this.hide_spinner();
-        this.total_results = 0;
-
         if (data[this.api] && data[this.api]["lister"])
             this.total_results = data[this.api]["lister"]["total_items"];
 
@@ -68,7 +90,7 @@ SemanticWidget = {
             this.dom.results.html("No results found...");
     },
 
-    api_query: function() {
+    api_query: function(callback) {
         //Performs actual JSONP query to oDesk API
         var that = this;
 
@@ -76,7 +98,9 @@ SemanticWidget = {
 
         jQuery.getJSON(this.api_endpoint + "q=" + this.q + "&page=0;" + this.max_results,
             function(data) {
-                that.api_response(data);
+                that.hide_spinner();
+                that[callback](data);
+                //that.api_response(data);
             }
         );
     },
@@ -92,6 +116,7 @@ SemanticWidget = {
         // apple -> usage 3, items: [1, 2, 3]
 
         if (word == "") return;
+        if (this.stop_words.indexOf(word) !== -1) return;
 
         if (this.graph_array.hasOwnProperty(word) && this.graph_array[word].items.indexOf(resultset_item_index) < 0) {
             this.graph_array[word].usage++;
@@ -104,43 +129,50 @@ SemanticWidget = {
         }
     },
 
+    index_terms: function() {
+        var that = this;
+        $.each(this.resultset, function(resultset_item_index, item) {
+            // Title
+            $.each(that.prepare_string(item.dev_profile_title),
+                function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
+
+            // Description
+            $.each(that.prepare_string(item.dev_blurb),
+                function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
+        });
+    },
+
+    api_response_append: function(data) {
+        var that = this,
+            node = this.appending_node;
+
+        this.resultset = data[that.api][that.api_item];
+        this.index_terms();
+
+        $.each(that.graph_array, function(k, v) {
+            if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
+                var new_node = {
+                    id: k,
+                    name: k,
+                    data: {
+                        usage: v.usage
+                    },
+                    children: []
+                }
+                that.rgraph.graph.addNode(new_node);
+                that.rgraph.graph.addAdjacence(node, new_node, {});
+            }
+        });
+        that.rgraph.refresh();
+    },
+
     append_graph: function(node) {
         var that = this;
         this.graph_array = {};
-
+        this.appending_node = node;
         this.show_spinner();
-
-        jQuery.getJSON(this.api_endpoint + "q=" + node.name + "&page=0;" + that.max_results,
-            function(data) {
-                that.hide_spinner();
-
-                $.each(data[that.api][that.api_item], function(resultset_item_index, item) {
-                    // Title
-                    $.each(that.prepare_string(item.dev_profile_title),
-                        function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
-
-                    // Description
-                    $.each(that.prepare_string(item.dev_blurb),
-                        function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
-                });
-
-                $.each(that.graph_array, function(k, v) {
-                    if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
-                        var new_node = {
-                            id: k,
-                            name: k,
-                            data: {
-                                usage: v.usage
-                            },
-                            children: []
-                        }
-                        that.rgraph.graph.addNode(new_node);
-                        that.rgraph.graph.addAdjacence(node, new_node, {});
-                    }
-                });
-                that.rgraph.refresh();
-            }
-        );
+        this.q = node.name;
+        this.api_query("api_response_append");
     },
 
     build_graph: function() {
@@ -153,15 +185,7 @@ SemanticWidget = {
             children: []
         };
 
-        $.each(this.resultset, function(resultset_item_index, item) {
-            // Title
-            $.each(that.prepare_string(item.dev_profile_title),
-                function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
-
-            // Description
-            $.each(that.prepare_string(item.dev_blurb),
-                function(i, word) {that.index_term(word.capitalize(), resultset_item_index)});
-        });
+        this.index_terms();
 
         $.each(this.graph_array, function(k, v) {
             if ((v.usage > that.min_usage) && k !== that.q.capitalize()) {
